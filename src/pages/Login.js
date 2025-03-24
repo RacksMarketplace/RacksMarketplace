@@ -2,9 +2,9 @@ import { useState, useContext } from "react";
 import { useRouter } from "next/router";
 import UserContext from "../context/UserContext";
 
-const API_URL = "https://yourbackend.onrender.com/auth/login";
+const API_URL = "https://racksmarketplace.onrender.com/auth/login"; // Adjust the endpoint
 
-export default function Login() {
+export default function LoginPage() {
     const { login } = useContext(UserContext);
     const router = useRouter();
 
@@ -28,9 +28,8 @@ export default function Login() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Login failed");
 
-            localStorage.setItem("token", data.token);
+            localStorage.setItem("token", data.token); // Store JWT token
             login(data.user);
-            router.push("/");
         } catch (err) {
             setError(err.message);
         } finally {

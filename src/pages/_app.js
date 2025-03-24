@@ -11,10 +11,9 @@ export default function MyApp({ Component, pageProps }) {
         const token = localStorage.getItem("token");
         if (!token && !["/login", "/signup"].includes(router.pathname)) {
             router.push("/login");
-        } else {
-            setLoading(false);
         }
-    }, [router.pathname]);
+        setLoading(false);
+    }, []);
 
     if (loading) return <p>Loading...</p>;
 
