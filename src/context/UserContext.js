@@ -8,26 +8,34 @@ export const UserProvider = ({ children }) => {
     const router = useRouter();
 
     useEffect(() => {
+        const token = localStorage.getItem("token");
         const storedUser = localStorage.getItem("user");
-        if (storedUser) {
+        if (token && storedUser) {
             setUser(JSON.parse(storedUser));
         }
     }, []);
 
-    const login = (userData) => {
+    const login = (userData, token) => {
         localStorage.setItem("user", JSON.stringify(userData));
+        localStorage.setItem("token", token);
         setUser(userData);
         router.push("/");
     };
 
     const logout = () => {
         localStorage.removeItem("user");
+        localStorage.removeItem("token");
         setUser(null);
         router.push("/login");
     };
 
+    const getAuthHeaders = () => {
+        const token = localStorage.getItem("token");
+        return token ? { Authorization: `Bearer ${token}` } : {};
+    };
+
     return (
-        <UserContext.Provider value={{ user, login, logout }}>
+        <UserContext.Provider value={{ user, login, logout, getAuthHeaders }}>
             {children}
         </UserContext.Provider>
     );

@@ -5,8 +5,7 @@ import UserContext from "../context/UserContext";
 const API_URL = "https://racksmarketplace.onrender.com/auth/login";
 
 export default function LoginPage() {
-    const userContext = useContext(UserContext); // ✅ Safe way to use context
-    const { login } = userContext || {}; // ✅ Ensures it doesn’t crash
+    const { login } = useContext(UserContext);
     const router = useRouter();
 
     const [email, setEmail] = useState("");
@@ -29,8 +28,7 @@ export default function LoginPage() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Login failed");
 
-            localStorage.setItem("token", data.token);
-            login(data.user);
+            login(data.user, data.token); // Pass token to context
         } catch (err) {
             setError(err.message);
         } finally {
@@ -45,7 +43,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin}>
                 <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                 <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                <button type="submit">{loading ? "Logging in..." : "Login"}</button>
+                <button type="submit" disabled={loading}>{loading ? "Logging in..." : "Login"}</button>
             </form>
         </div>
     );

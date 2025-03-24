@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import UserContext, { UserProvider } from "../context/UserContext";
+import { UserProvider } from "../context/UserContext";
 import "../styles/globals.css";
 
 export default function MyApp({ Component, pageProps }) {

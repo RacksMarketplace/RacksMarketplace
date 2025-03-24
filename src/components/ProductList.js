@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useContext } from "react";
-import UserContext from "../context/UserContext"; // ✅ Correct Import
+import UserContext from "../context/UserContext";
 import Image from "next/image";
 
 const API_URL = "https://racksmarketplace.onrender.com/products";
 
 export default function ProductList() {
-    const { user } = useContext(UserContext) || {}; // ✅ Prevents crashing when `user` is null
+    const { user, getAuthHeaders } = useContext(UserContext);
     const [products, setProducts] = useState([]);
     const [search, setSearch] = useState("");
     const [category, setCategory] = useState("");
@@ -40,12 +40,9 @@ export default function ProductList() {
         if (!window.confirm("Are you sure you want to delete this product?")) return;
 
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(`${API_URL}/${id}`, {
                 method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                },
+                headers: getAuthHeaders(),
             });
             if (!response.ok) throw new Error("Failed to delete product");
             fetchProducts();
@@ -57,26 +54,6 @@ export default function ProductList() {
     return (
         <div>
             <h2>Marketplace Products</h2>
-
-            {/* ✅ Search and Filters */}
-            <div>
-                <input
-                    type="text"
-                    placeholder="Search products..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-                <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                    <option value="">All Categories</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Clothing">Clothing</option>
-                    <option value="Accessories">Accessories</option>
-                    <option value="Home & Living">Home & Living</option>
-                    <option value="Gaming">Gaming</option>
-                </select>
-            </div>
-
-            {/* ✅ Product Listings */}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
                 {products.length === 0 ? (
                     <p>No products found</p>
@@ -91,16 +68,10 @@ export default function ProductList() {
                                 style={{ borderRadius: "8px" }}
                             />
                             <h3>{product.name}</h3>
-                            <p>
-                                <strong>Price:</strong> ${product.price}
-                            </p>
+                            <p><strong>Price:</strong> ${product.price}</p>
                             <p>{product.description}</p>
-                            {user && user.id === product.user_id && (
-                                <>
-                                    <button onClick={() => deleteProduct(product.id)} style={{ color: "red" }}>
-                                        Delete
-                                    </button>
-                                </>
+                            {user && (
+                                <button onClick={() => deleteProduct(product.id)} style={{ color: "red" }}>Delete</button>
                             )}
                         </div>
                     ))
