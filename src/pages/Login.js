@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { useRouter } from "next/router";
 import UserContext from "../context/UserContext";
 
-const API_URL = "https://yourbackend.onrender.com/auth/login"; // Replace with your actual backend login API
+const API_URL = "https://yourbackend.onrender.com/auth/login";
 
 export default function Login() {
     const { login } = useContext(UserContext);
@@ -28,10 +28,9 @@ export default function Login() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Login failed");
 
-            localStorage.setItem("token", data.token); // Store JWT
-            login(data.user); // Update user context
-
-            router.push("/"); // Redirect to homepage
+            localStorage.setItem("token", data.token);
+            login(data.user);
+            router.push("/");
         } catch (err) {
             setError(err.message);
         } finally {
@@ -40,29 +39,13 @@ export default function Login() {
     };
 
     return (
-        <div style={{ maxWidth: "400px", margin: "auto", padding: "20px", textAlign: "center" }}>
+        <div>
             <h2>Login</h2>
-            {error && <p style={{ color: "red" }}>{error}</p>}
+            {error && <p>{error}</p>}
             <form onSubmit={handleLogin}>
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    style={{ display: "block", width: "100%", marginBottom: "10px", padding: "8px" }}
-                />
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    style={{ display: "block", width: "100%", marginBottom: "10px", padding: "8px" }}
-                />
-                <button type="submit" disabled={loading} style={{ width: "100%", padding: "10px", backgroundColor: "blue", color: "white", border: "none" }}>
-                    {loading ? "Logging in..." : "Login"}
-                </button>
+                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <button type="submit">{loading ? "Logging in..." : "Login"}</button>
             </form>
         </div>
     );

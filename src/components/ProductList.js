@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import UserContext from "../context/UserContext";
 import Image from "next/image";
-const API_URL = "https://racksmarketplace.onrender.com/products"; // Replace with actual backend URL
+
+const API_URL = "https://racksmarketplace.onrender.com/products";
 
 export default function ProductList() {
     const { user } = useContext(UserContext);
@@ -16,21 +17,24 @@ export default function ProductList() {
     const [editedPrice, setEditedPrice] = useState("");
     const [editedDescription, setEditedDescription] = useState("");
 
+    // ✅ Fetch Products
     const fetchProducts = useCallback(async () => {
         try {
-            const response = await fetch(API_URL);
+            let query = `${API_URL}?search=${search}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`;
+            const response = await fetch(query);
             if (!response.ok) throw new Error("Failed to fetch products");
             const data = await response.json();
             setProducts(data);
         } catch (err) {
             console.error("Error fetching products:", err);
         }
-    }, []);
-    
+    }, [search, category, minPrice, maxPrice, sort]);
+
     useEffect(() => {
         fetchProducts();
-    }, [fetchProducts]); // ✅ Now it's stable
+    }, [fetchProducts]);
 
+    // ✅ Delete Product
     const deleteProduct = async (id) => {
         if (!user) return alert("You must be logged in to delete a product.");
         if (!window.confirm("Are you sure you want to delete this product?")) return;
@@ -40,8 +44,8 @@ export default function ProductList() {
             const response = await fetch(`${API_URL}/${id}`, {
                 method: "DELETE",
                 headers: {
-                    "Authorization": `Bearer ${token}`
-                }
+                    "Authorization": `Bearer ${token}`,
+                },
             });
             if (!response.ok) throw new Error("Failed to delete product");
             fetchProducts();
@@ -50,6 +54,7 @@ export default function ProductList() {
         }
     };
 
+    // ✅ Start Editing
     const startEditing = (product) => {
         if (!user || user.id !== product.user_id) {
             return alert("You are not authorized to edit this product.");
@@ -60,6 +65,7 @@ export default function ProductList() {
         setEditedDescription(product.description);
     };
 
+    // ✅ Save Edit
     const saveEdit = async (id) => {
         if (!user) return alert("You must be logged in to edit a product.");
 
@@ -69,13 +75,13 @@ export default function ProductList() {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    "Authorization": `Bearer ${token}`,
                 },
                 body: JSON.stringify({
                     name: editedName,
                     price: editedPrice,
-                    description: editedDescription
-                })
+                    description: editedDescription,
+                }),
             });
             if (!response.ok) throw new Error("Failed to update product");
 
@@ -92,10 +98,10 @@ export default function ProductList() {
 
             {/* ✅ Search and Filters */}
             <div>
-                <input 
-                    type="text" 
-                    placeholder="Search products..." 
-                    value={search} 
+                <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={search}
                     onChange={(e) => setSearch(e.target.value)}
                 />
                 <select value={category} onChange={(e) => setCategory(e.target.value)}>
@@ -106,16 +112,16 @@ export default function ProductList() {
                     <option value="Home & Living">Home & Living</option>
                     <option value="Gaming">Gaming</option>
                 </select>
-                <input 
-                    type="number" 
-                    placeholder="Min Price" 
-                    value={minPrice} 
+                <input
+                    type="number"
+                    placeholder="Min Price"
+                    value={minPrice}
                     onChange={(e) => setMinPrice(e.target.value)}
                 />
-                <input 
-                    type="number" 
-                    placeholder="Max Price" 
-                    value={maxPrice} 
+                <input
+                    type="number"
+                    placeholder="Max Price"
+                    value={maxPrice}
                     onChange={(e) => setMaxPrice(e.target.value)}
                 />
                 <select value={sort} onChange={(e) => setSort(e.target.value)}>
@@ -131,32 +137,47 @@ export default function ProductList() {
                 {products.length === 0 ? (
                     <p>No products found</p>
                 ) : (
-                    products.map(product => (
+                    products.map((product) => (
                         <div key={product.id} style={{ border: "1px solid #ddd", padding: "10px" }}>
-                            <Image 
-    src={product.image_url ? `${API_URL}${product.image_url}` : "https://via.placeholder.com/150"} 
-    alt={product.name} 
-    width={150} 
-    height={150} 
-    style={{ borderRadius: "8px" }}
-/>
+                            <Image
+                                src={product.image_url || "https://via.placeholder.com/150"}
+                                alt={product.name}
+                                width={150}
+                                height={150}
+                                style={{ borderRadius: "8px" }}
+                            />
                             {editingProduct === product.id ? (
                                 <>
-                                    <input type="text" value={editedName} onChange={(e) => setEditedName(e.target.value)} />
-                                    <input type="number" value={editedPrice} onChange={(e) => setEditedPrice(e.target.value)} />
-                                    <textarea value={editedDescription} onChange={(e) => setEditedDescription(e.target.value)} />
+                                    <input
+                                        type="text"
+                                        value={editedName}
+                                        onChange={(e) => setEditedName(e.target.value)}
+                                    />
+                                    <input
+                                        type="number"
+                                        value={editedPrice}
+                                        onChange={(e) => setEditedPrice(e.target.value)}
+                                    />
+                                    <textarea
+                                        value={editedDescription}
+                                        onChange={(e) => setEditedDescription(e.target.value)}
+                                    />
                                     <button onClick={() => saveEdit(product.id)}>Save</button>
                                     <button onClick={() => setEditingProduct(null)}>Cancel</button>
                                 </>
                             ) : (
                                 <>
                                     <h3>{product.name}</h3>
-                                    <p><strong>Price:</strong> ${product.price}</p>
+                                    <p>
+                                        <strong>Price:</strong> ${product.price}
+                                    </p>
                                     <p>{product.description}</p>
                                     {user && user.id === product.user_id && (
                                         <>
                                             <button onClick={() => startEditing(product)}>Edit</button>
-                                            <button onClick={() => deleteProduct(product.id)} style={{ color: "red" }}>Delete</button>
+                                            <button onClick={() => deleteProduct(product.id)} style={{ color: "red" }}>
+                                                Delete
+                                            </button>
                                         </>
                                     )}
                                 </>
