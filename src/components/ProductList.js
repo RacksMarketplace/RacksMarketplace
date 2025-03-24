@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useCallback } from "react";
 import UserContext from "../context/UserContext";
 import Image from "next/image";
 const API_URL = "https://racksmarketplace.onrender.com/products"; // Replace with actual backend URL
@@ -16,22 +16,20 @@ export default function ProductList() {
     const [editedPrice, setEditedPrice] = useState("");
     const [editedDescription, setEditedDescription] = useState("");
 
-    useEffect(() => {
-        fetchProducts();
-    }, [fetchProducts]); // ✅ Fixed
-    
-
-    const fetchProducts = async () => {
-        let url = `${API_URL}?search=${search}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`;
+    const fetchProducts = useCallback(async () => {
         try {
-            const response = await fetch(url);
+            const response = await fetch(API_URL);
             if (!response.ok) throw new Error("Failed to fetch products");
             const data = await response.json();
             setProducts(data);
         } catch (err) {
             console.error("Error fetching products:", err);
         }
-    };
+    }, []);
+    
+    useEffect(() => {
+        fetchProducts();
+    }, [fetchProducts]); // ✅ Now it's stable
 
     const deleteProduct = async (id) => {
         if (!user) return alert("You must be logged in to delete a product.");
