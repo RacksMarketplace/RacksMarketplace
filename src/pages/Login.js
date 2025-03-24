@@ -1,3 +1,6 @@
+import dynamic from "next/dynamic";
+const LoginPage = dynamic(() => import("../components/Login"), { ssr: false });
+
 import { useState, useContext } from "react";
 import { useRouter } from "next/router";
 import UserContext from "../context/UserContext";
@@ -42,3 +45,4 @@ export default function Login() {
         </div>
     );
 }
+
