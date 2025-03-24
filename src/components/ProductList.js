@@ -12,93 +12,29 @@ export default function ProductList() {
     const [minPrice, setMinPrice] = useState("");
     const [maxPrice, setMaxPrice] = useState("");
     const [sort, setSort] = useState("");
-    const [editingProduct, setEditingProduct] = useState(null);
-    const [editedName, setEditedName] = useState("");
-    const [editedPrice, setEditedPrice] = useState("");
-    const [editedDescription, setEditedDescription] = useState("");
 
-    // ✅ Wrap `fetchProducts` in `useCallback`
-   // const fetchProducts = useCallback(async () => {
-     //   try {
-       //     let query = `${API_URL}?search=${search}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`;
-         //   const response = await fetch(query);
-           // if (!response.ok) throw new Error("Failed to fetch products");
-            //const data = await response.json();
-            //setProducts(data);
-        //} catch (err) {
-         //   console.error("Error fetching products:", err);
-        //}
-    //}, [search, category, minPrice, maxPrice, sort]); // ✅ Dependencies remain stable
+    const fetchProducts = useCallback(async () => {
+        try {
+            let query = `${API_URL}?search=${search}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`;
+            const response = await fetch(query);
+            if (!response.ok) throw new Error("Failed to fetch products");
+            const data = await response.json();
+            setProducts(data);
+        } catch (err) {
+            console.error("Error fetching products:", err);
+        }
+    }, [search, category, minPrice, maxPrice, sort]);
 
-    // ✅ `useEffect` depends on the stable `fetchProducts`
     useEffect(() => {
         fetchProducts();
     }, [fetchProducts]);
-
-    // ✅ Delete Product
-    const deleteProduct = async (id) => {
-        if (!user) return alert("You must be logged in to delete a product.");
-        if (!window.confirm("Are you sure you want to delete this product?")) return;
-
-        try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${API_URL}/${id}`, {
-                method: "DELETE",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                },
-            });
-            if (!response.ok) throw new Error("Failed to delete product");
-            fetchProducts(); // ✅ Re-fetch products after deletion
-        } catch (err) {
-            console.error("Error deleting product:", err);
-        }
-    };
-
-    // ✅ Start Editing
-    const startEditing = (product) => {
-        if (!user || user.id !== product.user_id) {
-            return alert("You are not authorized to edit this product.");
-        }
-        setEditingProduct(product.id);
-        setEditedName(product.name);
-        setEditedPrice(product.price);
-        setEditedDescription(product.description);
-    };
-
-    // ✅ Save Edit
-    const saveEdit = async (id) => {
-        if (!user) return alert("You must be logged in to edit a product.");
-
-        try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${API_URL}/${id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    name: editedName,
-                    price: editedPrice,
-                    description: editedDescription,
-                }),
-            });
-            if (!response.ok) throw new Error("Failed to update product");
-
-            setEditingProduct(null);
-            fetchProducts(); // ✅ Refresh product list
-        } catch (err) {
-            console.error("Error updating product:", err);
-        }
-    };
 
     return (
         <div>
             <h2>Marketplace Products</h2>
 
             {/* ✅ Search and Filters */}
-            <div>
+            <div className="search-filters">
                 <input
                     type="text"
                     placeholder="Search products..."
@@ -134,55 +70,21 @@ export default function ProductList() {
             </div>
 
             {/* ✅ Product Listings */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
+            <div className="product-grid">
                 {products.length === 0 ? (
                     <p>No products found</p>
                 ) : (
                     products.map((product) => (
-                        <div key={product.id} style={{ border: "1px solid #ddd", padding: "10px" }}>
+                        <div key={product.id} className="product-card">
                             <Image
                                 src={product.image_url || "https://via.placeholder.com/150"}
                                 alt={product.name}
-                                width={150}
-                                height={150}
-                                style={{ borderRadius: "8px" }}
+                                width={300}
+                                height={200}
                             />
-                            {editingProduct === product.id ? (
-                                <>
-                                    <input
-                                        type="text"
-                                        value={editedName}
-                                        onChange={(e) => setEditedName(e.target.value)}
-                                    />
-                                    <input
-                                        type="number"
-                                        value={editedPrice}
-                                        onChange={(e) => setEditedPrice(e.target.value)}
-                                    />
-                                    <textarea
-                                        value={editedDescription}
-                                        onChange={(e) => setEditedDescription(e.target.value)}
-                                    />
-                                    <button onClick={() => saveEdit(product.id)}>Save</button>
-                                    <button onClick={() => setEditingProduct(null)}>Cancel</button>
-                                </>
-                            ) : (
-                                <>
-                                    <h3>{product.name}</h3>
-                                    <p>
-                                        <strong>Price:</strong> ${product.price}
-                                    </p>
-                                    <p>{product.description}</p>
-                                    {user && user.id === product.user_id && (
-                                        <>
-                                            <button onClick={() => startEditing(product)}>Edit</button>
-                                            <button onClick={() => deleteProduct(product.id)} style={{ color: "red" }}>
-                                                Delete
-                                            </button>
-                                        </>
-                                    )}
-                                </>
-                            )}
+                            <h3>{product.name}</h3>
+                            <p className="price">${product.price}</p>
+                            <p>{product.description}</p>
                         </div>
                     ))
                 )}
