@@ -1,6 +1,8 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
-import UserContext from "../context/UserContext";
+import { useContext } from "react";
+import { UserContext } from "../context/UserContext"; // ✅ Correct import
+
 
 const API_URL = "https://racksmarketplace.onrender.com/auth/login"; // Adjust the endpoint
 

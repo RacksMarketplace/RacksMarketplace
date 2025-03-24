@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useContext } from "react";
-import UserContext from "../context/UserContext";
+import { UserContext } from "../context/UserContext"; // ✅ Correct import
 import Image from "next/image";
 
 const API_URL = "https://racksmarketplace.onrender.com/products";
 
 export default function ProductList() {
-    const { user } = useContext(UserContext);
+    const { user } = useContext(UserContext) || {}; // ✅ Prevents crashing when `user` is null
     const [products, setProducts] = useState([]);
     const [search, setSearch] = useState("");
     const [category, setCategory] = useState("");
@@ -54,44 +54,6 @@ export default function ProductList() {
         }
     };
 
-    // ✅ Start Editing
-    const startEditing = (product) => {
-        if (!user || user.id !== product.user_id) {
-            return alert("You are not authorized to edit this product.");
-        }
-        setEditingProduct(product.id);
-        setEditedName(product.name);
-        setEditedPrice(product.price);
-        setEditedDescription(product.description);
-    };
-
-    // ✅ Save Edit
-    const saveEdit = async (id) => {
-        if (!user) return alert("You must be logged in to edit a product.");
-
-        try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${API_URL}/${id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    name: editedName,
-                    price: editedPrice,
-                    description: editedDescription,
-                }),
-            });
-            if (!response.ok) throw new Error("Failed to update product");
-
-            setEditingProduct(null);
-            fetchProducts();
-        } catch (err) {
-            console.error("Error updating product:", err);
-        }
-    };
-
     return (
         <div>
             <h2>Marketplace Products</h2>
@@ -112,24 +74,6 @@ export default function ProductList() {
                     <option value="Home & Living">Home & Living</option>
                     <option value="Gaming">Gaming</option>
                 </select>
-                <input
-                    type="number"
-                    placeholder="Min Price"
-                    value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value)}
-                />
-                <input
-                    type="number"
-                    placeholder="Max Price"
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                />
-                <select value={sort} onChange={(e) => setSort(e.target.value)}>
-                    <option value="">Sort By</option>
-                    <option value="newest">Newest</option>
-                    <option value="price_low">Price: Low to High</option>
-                    <option value="price_high">Price: High to Low</option>
-                </select>
             </div>
 
             {/* ✅ Product Listings */}
@@ -146,40 +90,16 @@ export default function ProductList() {
                                 height={150}
                                 style={{ borderRadius: "8px" }}
                             />
-                            {editingProduct === product.id ? (
+                            <h3>{product.name}</h3>
+                            <p>
+                                <strong>Price:</strong> ${product.price}
+                            </p>
+                            <p>{product.description}</p>
+                            {user && user.id === product.user_id && (
                                 <>
-                                    <input
-                                        type="text"
-                                        value={editedName}
-                                        onChange={(e) => setEditedName(e.target.value)}
-                                    />
-                                    <input
-                                        type="number"
-                                        value={editedPrice}
-                                        onChange={(e) => setEditedPrice(e.target.value)}
-                                    />
-                                    <textarea
-                                        value={editedDescription}
-                                        onChange={(e) => setEditedDescription(e.target.value)}
-                                    />
-                                    <button onClick={() => saveEdit(product.id)}>Save</button>
-                                    <button onClick={() => setEditingProduct(null)}>Cancel</button>
-                                </>
-                            ) : (
-                                <>
-                                    <h3>{product.name}</h3>
-                                    <p>
-                                        <strong>Price:</strong> ${product.price}
-                                    </p>
-                                    <p>{product.description}</p>
-                                    {user && user.id === product.user_id && (
-                                        <>
-                                            <button onClick={() => startEditing(product)}>Edit</button>
-                                            <button onClick={() => deleteProduct(product.id)} style={{ color: "red" }}>
-                                                Delete
-                                            </button>
-                                        </>
-                                    )}
+                                    <button onClick={() => deleteProduct(product.id)} style={{ color: "red" }}>
+                                        Delete
+                                    </button>
                                 </>
                             )}
                         </div>

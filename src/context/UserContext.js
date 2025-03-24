@@ -1,14 +1,13 @@
 import { createContext, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
-const UserContext = createContext(null);
+export const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
-        // Check if user is already stored in localStorage
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
             setUser(JSON.parse(storedUser));
@@ -18,7 +17,7 @@ export const UserProvider = ({ children }) => {
     const login = (userData) => {
         localStorage.setItem("user", JSON.stringify(userData));
         setUser(userData);
-        router.push("/");
+        router.push("/"); // Redirect to homepage after login
     };
 
     const logout = () => {
@@ -33,5 +32,3 @@ export const UserProvider = ({ children }) => {
         </UserContext.Provider>
     );
 };
-
-export default UserContext;
