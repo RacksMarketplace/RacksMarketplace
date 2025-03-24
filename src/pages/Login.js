@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { useRouter } from "next/router";
 import UserContext from "../context/UserContext";
 
-const API_URL = "https://racksmarketplace.onrender.com/auth/login";
+const API_URL = "https://racksmarketplace.onrender.com/auth/login"; // Adjust the endpoint
 
 export default function LoginPage() {
     const userContext = useContext(UserContext); // ✅ Use full object to prevent destructuring issues
@@ -17,7 +17,7 @@ export default function LoginPage() {
         return <p>Loading context...</p>; // ✅ Ensures no error due to undefined context
     }
 
-    const { login } = userContext;
+    const { login } = userContext; // ✅ Fix potential destructuring issue
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -36,6 +36,7 @@ export default function LoginPage() {
 
             localStorage.setItem("token", data.token);
             login(data.user);
+            router.push("/");
         } catch (err) {
             setError(err.message);
         } finally {
