@@ -18,17 +18,17 @@ export default function ProductList() {
     const [editedDescription, setEditedDescription] = useState("");
 
     // ✅ Wrap `fetchProducts` in `useCallback`
-    const fetchProducts = useCallback(async () => {
-        try {
-            let query = `${API_URL}?search=${search}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`;
-            const response = await fetch(query);
-            if (!response.ok) throw new Error("Failed to fetch products");
-            const data = await response.json();
-            setProducts(data);
-        } catch (err) {
-            console.error("Error fetching products:", err);
-        }
-    }, [search, category, minPrice, maxPrice, sort]); // ✅ Dependencies remain stable
+   // const fetchProducts = useCallback(async () => {
+     //   try {
+       //     let query = `${API_URL}?search=${search}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`;
+         //   const response = await fetch(query);
+           // if (!response.ok) throw new Error("Failed to fetch products");
+            //const data = await response.json();
+            //setProducts(data);
+        //} catch (err) {
+         //   console.error("Error fetching products:", err);
+        //}
+    //}, [search, category, minPrice, maxPrice, sort]); // ✅ Dependencies remain stable
 
     // ✅ `useEffect` depends on the stable `fetchProducts`
     useEffect(() => {
