@@ -5,13 +5,19 @@ import UserContext from "../context/UserContext";
 const API_URL = "https://racksmarketplace.onrender.com/auth/login";
 
 export default function LoginPage() {
-    const { login } = useContext(UserContext);
+    const userContext = useContext(UserContext); // ✅ Use full object to prevent destructuring issues
     const router = useRouter();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    if (!userContext) {
+        return <p>Loading context...</p>; // ✅ Ensures no error due to undefined context
+    }
+
+    const { login } = userContext;
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -28,7 +34,8 @@ export default function LoginPage() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Login failed");
 
-            login(data.user, data.token); // Pass token to context
+            localStorage.setItem("token", data.token);
+            login(data.user);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -43,7 +50,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin}>
                 <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                 <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                <button type="submit" disabled={loading}>{loading ? "Logging in..." : "Login"}</button>
+                <button type="submit">{loading ? "Logging in..." : "Login"}</button>
             </form>
         </div>
     );

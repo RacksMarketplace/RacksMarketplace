@@ -8,34 +8,31 @@ export const UserProvider = ({ children }) => {
     const router = useRouter();
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
         const storedUser = localStorage.getItem("user");
-        if (token && storedUser) {
-            setUser(JSON.parse(storedUser));
+        if (storedUser) {
+            try {
+                setUser(JSON.parse(storedUser));
+            } catch (error) {
+                console.error("Error parsing stored user:", error);
+                localStorage.removeItem("user"); // Remove if invalid
+            }
         }
     }, []);
 
-    const login = (userData, token) => {
+    const login = (userData) => {
         localStorage.setItem("user", JSON.stringify(userData));
-        localStorage.setItem("token", token);
         setUser(userData);
         router.push("/");
     };
 
     const logout = () => {
         localStorage.removeItem("user");
-        localStorage.removeItem("token");
         setUser(null);
         router.push("/login");
     };
 
-    const getAuthHeaders = () => {
-        const token = localStorage.getItem("token");
-        return token ? { Authorization: `Bearer ${token}` } : {};
-    };
-
     return (
-        <UserContext.Provider value={{ user, login, logout, getAuthHeaders }}>
+        <UserContext.Provider value={{ user, login, logout }}>
             {children}
         </UserContext.Provider>
     );
