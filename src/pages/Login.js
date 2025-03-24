@@ -1,13 +1,12 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useRouter } from "next/router";
-import { useContext } from "react";
-import { UserContext } from "../context/UserContext"; // ✅ Correct import
+import UserContext from "../context/UserContext";
 
-
-const API_URL = "https://racksmarketplace.onrender.com/auth/login"; // Adjust the endpoint
+const API_URL = "https://racksmarketplace.onrender.com/auth/login";
 
 export default function LoginPage() {
-    const { login } = useContext(UserContext);
+    const userContext = useContext(UserContext); // ✅ Safe way to use context
+    const { login } = userContext || {}; // ✅ Ensures it doesn’t crash
     const router = useRouter();
 
     const [email, setEmail] = useState("");
@@ -30,7 +29,7 @@ export default function LoginPage() {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Login failed");
 
-            localStorage.setItem("token", data.token); // Store JWT token
+            localStorage.setItem("token", data.token);
             login(data.user);
         } catch (err) {
             setError(err.message);

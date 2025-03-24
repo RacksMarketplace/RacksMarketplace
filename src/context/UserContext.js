@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 
-export const UserContext = createContext(null);
+const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -17,7 +17,7 @@ export const UserProvider = ({ children }) => {
     const login = (userData) => {
         localStorage.setItem("user", JSON.stringify(userData));
         setUser(userData);
-        router.push("/"); // Redirect to homepage after login
+        router.push("/");
     };
 
     const logout = () => {
@@ -32,3 +32,5 @@ export const UserProvider = ({ children }) => {
         </UserContext.Provider>
     );
 };
+
+export default UserContext;

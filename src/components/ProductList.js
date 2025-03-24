@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useContext } from "react";
-import { UserContext } from "../context/UserContext"; // ✅ Correct import
+import UserContext from "../context/UserContext"; // ✅ Correct Import
 import Image from "next/image";
 
 const API_URL = "https://racksmarketplace.onrender.com/products";
