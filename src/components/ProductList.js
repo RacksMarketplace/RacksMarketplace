@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import UserContext from "../context/UserContext";
-
+import Image from "next/image";
 const API_URL = "https://racksmarketplace.onrender.com/products"; // Replace with actual backend URL
 
 export default function ProductList() {
@@ -18,7 +18,8 @@ export default function ProductList() {
 
     useEffect(() => {
         fetchProducts();
-    }, [search, category, minPrice, maxPrice, sort]);
+    }, [fetchProducts]); // ✅ Fixed
+    
 
     const fetchProducts = async () => {
         let url = `${API_URL}?search=${search}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`;
@@ -134,12 +135,13 @@ export default function ProductList() {
                 ) : (
                     products.map(product => (
                         <div key={product.id} style={{ border: "1px solid #ddd", padding: "10px" }}>
-                            <img 
-                                src={product.image_url ? `${API_URL}${product.image_url}` : "https://via.placeholder.com/150"} 
-                                alt={product.name} 
-                                width="100%" 
-                                style={{ borderRadius: "8px" }}
-                            />
+                            <Image 
+    src={product.image_url ? `${API_URL}${product.image_url}` : "https://via.placeholder.com/150"} 
+    alt={product.name} 
+    width={150} 
+    height={150} 
+    style={{ borderRadius: "8px" }}
+/>
                             {editingProduct === product.id ? (
                                 <>
                                     <input type="text" value={editedName} onChange={(e) => setEditedName(e.target.value)} />
