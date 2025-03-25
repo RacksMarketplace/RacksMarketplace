@@ -12,16 +12,19 @@ export default function ProductList() {
     const [minPrice, setMinPrice] = useState("");
     const [maxPrice, setMaxPrice] = useState("");
     const [sort, setSort] = useState("");
-    const [editingProduct, setEditingProduct] = useState(null);
-    const [editedName, setEditedName] = useState("");
-    const [editedPrice, setEditedPrice] = useState("");
-    const [editedDescription, setEditedDescription] = useState("");
 
-    // ✅ Use useCallback to prevent re-creation of function on every render
+    // ✅ Memoize fetchProducts to prevent recreation
     const fetchProducts = useCallback(async () => {
         try {
-            let query = `${API_URL}?search=${search}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`;
-            const response = await fetch(query);
+            let queryParams = new URLSearchParams({
+                search,
+                category,
+                minPrice: minPrice || "", // Ensure empty values don't cause issues
+                maxPrice: maxPrice || "",
+                sort,
+            });
+
+            const response = await fetch(`${API_URL}?${queryParams}`);
             if (!response.ok) throw new Error("Failed to fetch products");
             const data = await response.json();
             setProducts(data);
@@ -30,7 +33,7 @@ export default function ProductList() {
         }
     }, [search, category, minPrice, maxPrice, sort]);
 
-    // ✅ Only call fetchProducts when dependencies change
+    // ✅ Ensure useEffect runs only when dependencies change
     useEffect(() => {
         fetchProducts();
     }, [fetchProducts]);
@@ -38,9 +41,15 @@ export default function ProductList() {
     return (
         <div>
             <h2>Marketplace Products</h2>
+
             {/* ✅ Search and Filters */}
             <div>
-                <input type="text" placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
                 <select value={category} onChange={(e) => setCategory(e.target.value)}>
                     <option value="">All Categories</option>
                     <option value="Electronics">Electronics</option>
@@ -49,8 +58,18 @@ export default function ProductList() {
                     <option value="Home & Living">Home & Living</option>
                     <option value="Gaming">Gaming</option>
                 </select>
-                <input type="number" placeholder="Min Price" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
-                <input type="number" placeholder="Max Price" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+                <input
+                    type="number"
+                    placeholder="Min Price"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                />
+                <input
+                    type="number"
+                    placeholder="Max Price"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                />
                 <select value={sort} onChange={(e) => setSort(e.target.value)}>
                     <option value="">Sort By</option>
                     <option value="newest">Newest</option>
@@ -66,7 +85,13 @@ export default function ProductList() {
                 ) : (
                     products.map((product) => (
                         <div key={product.id} style={{ border: "1px solid #ddd", padding: "10px" }}>
-                            <Image src={product.image_url || "https://via.placeholder.com/150"} alt={product.name} width={150} height={150} style={{ borderRadius: "8px" }} />
+                            <Image
+                                src={product.image_url || "https://via.placeholder.com/150"}
+                                alt={product.name}
+                                width={150}
+                                height={150}
+                                style={{ borderRadius: "8px" }}
+                            />
                             <h3>{product.name}</h3>
                             <p><strong>Price:</strong> ${product.price}</p>
                             <p>{product.description}</p>
