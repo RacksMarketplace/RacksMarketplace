@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback, useContext } from "react";
 import UserContext from "../context/UserContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectItem } from "@/components/ui/select";
 import Image from "next/image";
 
 const API_URL = "https://racksmarketplace.onrender.com/products";
@@ -12,19 +16,15 @@ export default function ProductList() {
     const [minPrice, setMinPrice] = useState("");
     const [maxPrice, setMaxPrice] = useState("");
     const [sort, setSort] = useState("");
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [editedName, setEditedName] = useState("");
+    const [editedPrice, setEditedPrice] = useState("");
+    const [editedDescription, setEditedDescription] = useState("");
 
-    // ✅ Memoize fetchProducts to prevent recreation
     const fetchProducts = useCallback(async () => {
         try {
-            let queryParams = new URLSearchParams({
-                search,
-                category,
-                minPrice: minPrice || "", // Ensure empty values don't cause issues
-                maxPrice: maxPrice || "",
-                sort,
-            });
-
-            const response = await fetch(`${API_URL}?${queryParams}`);
+            const query = `${API_URL}?search=${search}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`;
+            const response = await fetch(query);
             if (!response.ok) throw new Error("Failed to fetch products");
             const data = await response.json();
             setProducts(data);
@@ -33,69 +33,54 @@ export default function ProductList() {
         }
     }, [search, category, minPrice, maxPrice, sort]);
 
-    // ✅ Ensure useEffect runs only when dependencies change
     useEffect(() => {
         fetchProducts();
     }, [fetchProducts]);
 
     return (
-        <div>
-            <h2>Marketplace Products</h2>
-
-            {/* ✅ Search and Filters */}
-            <div>
-                <input
-                    type="text"
-                    placeholder="Search products..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-                <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                    <option value="">All Categories</option>
-                    <option value="Electronics">Electronics</option>
-                    <option value="Clothing">Clothing</option>
-                    <option value="Accessories">Accessories</option>
-                    <option value="Home & Living">Home & Living</option>
-                    <option value="Gaming">Gaming</option>
-                </select>
-                <input
-                    type="number"
-                    placeholder="Min Price"
-                    value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value)}
-                />
-                <input
-                    type="number"
-                    placeholder="Max Price"
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                />
-                <select value={sort} onChange={(e) => setSort(e.target.value)}>
-                    <option value="">Sort By</option>
-                    <option value="newest">Newest</option>
-                    <option value="price_low">Price: Low to High</option>
-                    <option value="price_high">Price: High to Low</option>
-                </select>
+        <div className="container mx-auto p-4">
+            <h2 className="text-2xl font-bold mb-4">Marketplace Products</h2>
+            <div className="flex gap-4 mb-4">
+                <Input placeholder="Search products..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                <Select value={category} onChange={(e) => setCategory(e.target.value)}>
+                    <SelectItem value="">All Categories</SelectItem>
+                    <SelectItem value="Electronics">Electronics</SelectItem>
+                    <SelectItem value="Clothing">Clothing</SelectItem>
+                    <SelectItem value="Accessories">Accessories</SelectItem>
+                    <SelectItem value="Home & Living">Home & Living</SelectItem>
+                    <SelectItem value="Gaming">Gaming</SelectItem>
+                </Select>
+                <Input type="number" placeholder="Min Price" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} />
+                <Input type="number" placeholder="Max Price" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} />
+                <Select value={sort} onChange={(e) => setSort(e.target.value)}>
+                    <SelectItem value="">Sort By</SelectItem>
+                    <SelectItem value="newest">Newest</SelectItem>
+                    <SelectItem value="price_low">Price: Low to High</SelectItem>
+                    <SelectItem value="price_high">Price: High to Low</SelectItem>
+                </Select>
             </div>
 
-            {/* ✅ Product Listings */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
+            <div className="grid grid-cols-3 gap-4">
                 {products.length === 0 ? (
                     <p>No products found</p>
                 ) : (
                     products.map((product) => (
-                        <div key={product.id} style={{ border: "1px solid #ddd", padding: "10px" }}>
-                            <Image
-                                src={product.image_url || "https://via.placeholder.com/150"}
-                                alt={product.name}
-                                width={150}
-                                height={150}
-                                style={{ borderRadius: "8px" }}
-                            />
-                            <h3>{product.name}</h3>
-                            <p><strong>Price:</strong> ${product.price}</p>
-                            <p>{product.description}</p>
-                        </div>
+                        <Card key={product.id}>
+                            <CardHeader>
+                                <Image
+                                    src={product.image_url || "https://via.placeholder.com/150"}
+                                    alt={product.name}
+                                    width={200}
+                                    height={200}
+                                    className="rounded-lg"
+                                />
+                                <CardTitle>{product.name}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-lg font-semibold">${product.price}</p>
+                                <p>{product.description}</p>
+                            </CardContent>
+                        </Card>
                     ))
                 )}
             </div>
