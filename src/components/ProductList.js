@@ -17,7 +17,7 @@ export default function ProductList() {
     const [editedPrice, setEditedPrice] = useState("");
     const [editedDescription, setEditedDescription] = useState("");
 
-    // ✅ Use useCallback to prevent infinite re-renders
+    // ✅ Use useCallback to prevent re-creation of function on every render
     const fetchProducts = useCallback(async () => {
         try {
             let query = `${API_URL}?search=${search}&category=${category}&minPrice=${minPrice}&maxPrice=${maxPrice}&sort=${sort}`;
@@ -30,6 +30,7 @@ export default function ProductList() {
         }
     }, [search, category, minPrice, maxPrice, sort]);
 
+    // ✅ Only call fetchProducts when dependencies change
     useEffect(() => {
         fetchProducts();
     }, [fetchProducts]);
