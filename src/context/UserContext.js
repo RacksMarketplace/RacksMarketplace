@@ -10,12 +10,7 @@ export const UserProvider = ({ children }) => {
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
-            try {
-                setUser(JSON.parse(storedUser));
-            } catch (error) {
-                console.error("Error parsing stored user:", error);
-                localStorage.removeItem("user"); // Remove if invalid
-            }
+            setUser(JSON.parse(storedUser));
         }
     }, []);
 
