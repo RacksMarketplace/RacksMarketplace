@@ -26,11 +26,7 @@ export const UserProvider = ({ children }) => {
         router.push("/login");
     };
 
-    return (
-        <UserContext.Provider value={{ user, login, logout }}>
-            {children}
-        </UserContext.Provider>
-    );
+    return <UserContext.Provider value={{ user, login, logout }}>{children}</UserContext.Provider>;
 };
 
 export default UserContext;
