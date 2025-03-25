@@ -2,10 +2,11 @@ import { useState, useContext } from "react";
 import { useRouter } from "next/router";
 import UserContext from "../context/UserContext";
 
-const API_URL = "https://racksmarketplace.onrender.com/auth/login"; // Adjust the endpoint
+const API_URL = "https://racksmarketplace.onrender.com/auth/login";
 
 export default function LoginPage() {
-    const userContext = useContext(UserContext); // ✅ Use full object to prevent destructuring issues
+    const userContext = useContext(UserContext);
+    const login = userContext?.login; // ✅ Avoids crashing if undefined
     const router = useRouter();
 
     const [email, setEmail] = useState("");
@@ -13,14 +14,10 @@ export default function LoginPage() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
-    if (!userContext) {
-        return <p>Loading context...</p>; // ✅ Ensures no error due to undefined context
-    }
-
-    const { login } = userContext; // ✅ Fix potential destructuring issue
-
     const handleLogin = async (e) => {
         e.preventDefault();
+        if (!login) return setError("Login function is unavailable");
+
         setLoading(true);
         setError(null);
 

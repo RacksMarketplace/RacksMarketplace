@@ -27,64 +27,28 @@ export default function ProductList() {
 
     useEffect(() => {
         fetchProducts();
-    }, [fetchProducts]);
+    }, [fetchProducts]); // ✅ Fixes infinite loop issue
 
     return (
         <div>
             <h2>Marketplace Products</h2>
-
-            {/* ✅ Search and Filters */}
-            <div className="search-filters">
-                <input
-                    type="text"
-                    placeholder="Search products..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
+            <div>
+                <input type="text" placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} />
                 <select value={category} onChange={(e) => setCategory(e.target.value)}>
                     <option value="">All Categories</option>
                     <option value="Electronics">Electronics</option>
                     <option value="Clothing">Clothing</option>
-                    <option value="Accessories">Accessories</option>
-                    <option value="Home & Living">Home & Living</option>
-                    <option value="Gaming">Gaming</option>
-                </select>
-                <input
-                    type="number"
-                    placeholder="Min Price"
-                    value={minPrice}
-                    onChange={(e) => setMinPrice(e.target.value)}
-                />
-                <input
-                    type="number"
-                    placeholder="Max Price"
-                    value={maxPrice}
-                    onChange={(e) => setMaxPrice(e.target.value)}
-                />
-                <select value={sort} onChange={(e) => setSort(e.target.value)}>
-                    <option value="">Sort By</option>
-                    <option value="newest">Newest</option>
-                    <option value="price_low">Price: Low to High</option>
-                    <option value="price_high">Price: High to Low</option>
                 </select>
             </div>
-
-            {/* ✅ Product Listings */}
-            <div className="product-grid">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px" }}>
                 {products.length === 0 ? (
                     <p>No products found</p>
                 ) : (
                     products.map((product) => (
-                        <div key={product.id} className="product-card">
-                            <Image
-                                src={product.image_url || "https://via.placeholder.com/150"}
-                                alt={product.name}
-                                width={300}
-                                height={200}
-                            />
+                        <div key={product.id} style={{ border: "1px solid #ddd", padding: "10px" }}>
+                            <Image src={product.image_url || "https://via.placeholder.com/150"} alt={product.name} width={150} height={150} />
                             <h3>{product.name}</h3>
-                            <p className="price">${product.price}</p>
-                            <p>{product.description}</p>
+                            <p><strong>Price:</strong> ${product.price}</p>
                         </div>
                     ))
                 )}
