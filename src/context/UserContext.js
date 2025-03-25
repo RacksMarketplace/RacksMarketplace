@@ -9,9 +9,7 @@ export const UserProvider = ({ children }) => {
 
     useEffect(() => {
         const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
+        if (storedUser) setUser(JSON.parse(storedUser));
     }, []);
 
     const login = (userData) => {
@@ -26,7 +24,11 @@ export const UserProvider = ({ children }) => {
         router.push("/login");
     };
 
-    return <UserContext.Provider value={{ user, login, logout }}>{children}</UserContext.Provider>;
+    return (
+        <UserContext.Provider value={{ user, login, logout }}>
+            {children}
+        </UserContext.Provider>
+    );
 };
 
 export default UserContext;
